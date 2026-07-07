@@ -74,6 +74,17 @@ class InkInfoUtilTest {
     }
 
     @Test
+    fun referrerUrl_returnsCachedValue() {
+        val expected = "utm_source=test"
+        context.getSharedPreferences("ink_info", Context.MODE_PRIVATE)
+            .edit()
+            .putString("referrer_url", expected)
+            .commit()
+
+        assertEquals(expected, InkInfoUtil.referrer_url(context))
+    }
+
+    @Test
     fun androidId_returnsSecureAndroidId() {
         val expected = "test-android-id"
         Settings.Secure.putString(context.contentResolver, Settings.Secure.ANDROID_ID, expected)

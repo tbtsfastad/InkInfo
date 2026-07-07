@@ -23,6 +23,7 @@ import kotlin.coroutines.resume
 object InkInfoUtil {
     private const val PREF_NAME = "ink_info"
     private const val KEY_DISTINCT_ID = "distinct_id"
+    private const val KEY_REFERRER_URL = "referrer_url"
 
     data class InstallAttributionParams(
         val build: String,
@@ -52,6 +53,13 @@ object InkInfoUtil {
     }
 
     fun log_id(): String = UUID.randomUUID().toString()
+
+    fun referrer_url(context: Context): String {
+        val appContext = context.applicationContext
+        return appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_REFERRER_URL, null)
+            .orEmpty()
+    }
 
     fun manufacturer(): String = Build.MANUFACTURER
 
@@ -99,6 +107,13 @@ object InkInfoUtil {
         val appContext = context.applicationContext
         val packageInfo = appContext.packageInfo()
         val referrerDetails = appContext.installReferrerDetails()
+        val referrerUrl = referrerDetails?.installReferrer.orEmpty()
+        if (referrerUrl.isNotEmpty()) {
+            appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putString(KEY_REFERRER_URL, referrerUrl)
+                .apply()
+        }
         val adInfo = withContext(Dispatchers.IO) {
             runCatching {
                 AdvertisingIdClient.getAdvertisingIdInfo(appContext)
@@ -107,7 +122,7 @@ object InkInfoUtil {
 
         return InstallAttributionParams(
             build = "build/${Build.ID}",
-            referrer_url = referrerDetails?.installReferrer.orEmpty(),
+            referrer_url = referrerUrl,
             install_version = referrerDetails?.installVersion.orEmpty(),
             user_agent = user_agent(appContext),
             lat = adInfo?.isLimitAdTrackingEnabled ?: false,
