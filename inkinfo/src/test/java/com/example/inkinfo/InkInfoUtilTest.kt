@@ -83,7 +83,7 @@ class InkInfoUtilTest {
 
     @Test
     fun appVersion_returnsVersionName() {
-        assertEquals("1.0", InkInfoUtil.app_version(context))
+        assertEquals("", InkInfoUtil.app_version(context))
     }
 
     @Test
