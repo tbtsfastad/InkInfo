@@ -5,23 +5,15 @@ plugins {
 
 android {
     namespace = "com.example.inkinfo"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 26
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    testOptions {
-        unitTests.isIncludeAndroidResources = true
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     publishing {
@@ -36,9 +28,6 @@ dependencies {
     implementation(libs.google.play.services.ads.identifier)
     implementation(libs.google.play.install.referrer)
     implementation(libs.kotlinx.coroutines.android)
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.robolectric)
 }
 
 publishing {

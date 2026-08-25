@@ -25,4 +25,5 @@ dependencyResolutionManagement {
 rootProject.name = "InkInfo"
 include(":app")
 include(":inkinfo")
- 
+
+include(":inkump")
