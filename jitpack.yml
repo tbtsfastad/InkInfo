@@ -1,4 +1,4 @@
 jdk:
   - openjdk17
 install:
-  - ./gradlew :inkinfo:publishToMavenLocal -x test
+  - ./gradlew :inkinfo:publishToMavenLocal :inkump:publishToMavenLocal :inkinfo-bom:publishToMavenLocal -x test
