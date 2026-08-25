@@ -33,7 +33,7 @@ dependencies {
 publishing {
     publications {
         register<MavenPublication>("release") {
-            groupId = "com.github.tbtsfastad.InkInfo"
+            groupId = "com.github.tbtsfastad"
             artifactId = "inkinfo"
             version = "1.0.2"
 
