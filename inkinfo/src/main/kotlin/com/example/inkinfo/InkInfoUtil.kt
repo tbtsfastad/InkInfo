@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
+import android.webkit.WebSettings
 import android.webkit.WebView
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerClient.InstallReferrerResponse
@@ -137,7 +138,7 @@ object InkInfoUtil {
     }
 
     suspend fun user_agent(context: Context): String = withContext(Dispatchers.Main) {
-        WebView(context.applicationContext).settings.userAgentString.orEmpty()
+        WebSettings.getDefaultUserAgent(context).orEmpty()
     }
 
     private fun Context.packageInfo(): PackageInfo {
