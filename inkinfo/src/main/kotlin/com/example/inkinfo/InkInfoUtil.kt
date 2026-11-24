@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
 import android.os.Build
 import android.provider.Settings
 import android.webkit.WebSettings
@@ -23,7 +24,6 @@ import kotlin.coroutines.resume
 
 object InkInfoUtil {
     private const val PREF_NAME = "ink_info"
-    private const val KEY_DISTINCT_ID = "distinct_id"
     private const val KEY_REFERRER_URL = "referrer_url"
 
     data class InstallAttributionParams(
@@ -42,15 +42,15 @@ object InkInfoUtil {
     )
 
     fun distinct_id(context: Context): String {
-        val appContext = context.applicationContext
-        val sp = appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-
-        return sp.getString(KEY_DISTINCT_ID, null)?.takeIf { it.isNotEmpty() } ?: synchronized(this) {
-            sp.getString(KEY_DISTINCT_ID, null)?.takeIf { it.isNotEmpty() } ?: UUID.randomUUID().toString()
-                .also { distinctId ->
-                    sp.edit().putString(KEY_DISTINCT_ID, distinctId).commit()
-                }
+        val preferences = context.getSharedPreferences("tba_info", Context.MODE_PRIVATE)
+        val cachedDistinctId = preferences.getString("dtcdte", null)
+        if (!cachedDistinctId.isNullOrEmpty()) {
+            return cachedDistinctId
         }
+
+        val distinctId = UUID.randomUUID().toString()
+        preferences.edit().putString("dtcdte", distinctId).apply()
+        return distinctId
     }
 
     fun log_id(): String = UUID.randomUUID().toString()
@@ -64,16 +64,35 @@ object InkInfoUtil {
 
     fun manufacturer(): String = Build.MANUFACTURER
 
-    @SuppressLint("HardwareIds")
-    fun android_id(context: Context): String {
-        val appContext = context.applicationContext
-        return Settings.Secure.getString(appContext.contentResolver, Settings.Secure.ANDROID_ID).orEmpty()
-    }
+    @Suppress("DEPRECATION")
+    fun network_type(context: Context): String = runCatching {
+        val manager = context.applicationContext.getSystemService(ConnectivityManager::class.java)
+        val network = manager?.activeNetworkInfo
+        if (network?.isConnected != true) {
+            return@runCatching "no"
+        }
+        when (network.type) {
+            ConnectivityManager.TYPE_WIFI -> "wifi"
+            ConnectivityManager.TYPE_MOBILE -> "mobile"
+            else -> "no"
+        }
+    }.getOrDefault("no")
 
-    fun app_version(context: Context): String {
-        val appContext = context.applicationContext
-        return appContext.packageInfo().versionName.orEmpty()
-    }
+    fun bundle_id(context: Context): String = context.packageName
+
+    @SuppressLint("HardwareIds")
+    fun android_id(context: Context): String = runCatching {
+        val id = Settings.Secure.getString(
+            context.applicationContext.contentResolver,
+            Settings.Secure.ANDROID_ID,
+        )
+        id?.takeUnless { it == "9774d56d682e549c" }.orEmpty()
+    }.getOrDefault("")
+
+    @Suppress("DEPRECATION")
+    fun app_version(context: Context): String =
+        context.packageManager.getPackageInfo(context.packageName, PackageManager.GET_META_DATA)
+            .versionName.orEmpty()
 
     fun zone_offset(): Int {
         return TimeZone.getDefault().getOffset(System.currentTimeMillis()) / (60 * 60 * 1000)
@@ -91,17 +110,17 @@ object InkInfoUtil {
 
     fun system_language(): String {
         val locale = Locale.getDefault()
-        return if (locale.country.isEmpty()) {
-            locale.language
-        } else {
-            "${locale.language}_${locale.country}"
-        }
+        val language = locale.language.lowercase(Locale.ROOT)
+        val country = locale.country.uppercase(Locale.ROOT)
+        return "${language}_${country}"
     }
 
     suspend fun gaid(context: Context): String = withContext(Dispatchers.IO) {
-        runCatching {
+        try {
             AdvertisingIdClient.getAdvertisingIdInfo(context.applicationContext).id.orEmpty()
-        }.getOrDefault("")
+        } catch (_: Exception) {
+            ""
+        }
     }
 
     suspend fun install_attribution(context: Context): InstallAttributionParams {
