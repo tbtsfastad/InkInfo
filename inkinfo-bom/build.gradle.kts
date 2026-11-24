@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.github.tbtsfastad"
-version = "1.0.3"
+version = libs.versions.inkinfoRelease.get()
 
 javaPlatform {
     allowDependencies()
@@ -12,8 +12,8 @@ javaPlatform {
 
 dependencies {
     constraints {
-        api("com.github.tbtsfastad.InkInfo:inkinfo:1.0.3")
-        api("com.github.tbtsfastad.InkInfo:inkump:1.0.3")
+        api("com.github.tbtsfastad.InkInfo:inkinfo:${project.version}")
+        api("com.github.tbtsfastad.InkInfo:inkump:${project.version}")
     }
 }
 
@@ -23,7 +23,7 @@ publishing {
             from(components["javaPlatform"])
             groupId = "com.github.tbtsfastad"
             artifactId = "inkinfo-bom"
-            version = "1.0.3"
+            version = libs.versions.inkinfoRelease.get()
         }
     }
 }

@@ -24,7 +24,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
     implementation(libs.google.play.services.ads.identifier)
     implementation(libs.google.play.install.referrer)
     implementation(libs.kotlinx.coroutines.android)
@@ -35,7 +34,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "com.github.tbtsfastad"
             artifactId = "inkinfo"
-            version = "1.0.5"
+            version = libs.versions.inkinfoRelease.get()
 
             afterEvaluate {
                 from(components["release"])

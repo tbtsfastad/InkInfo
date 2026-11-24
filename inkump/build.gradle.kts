@@ -48,7 +48,7 @@ publishing {
         create<MavenPublication>("release") {
             groupId = "com.github.tbtsfastad"
             artifactId = "inkump"
-            version = "1.0.3"
+            version = libs.versions.inkinfoRelease.get()
 
             afterEvaluate {
                 from(components["release"])
